@@ -10,6 +10,8 @@
   let loader
 
   function addLoaderStyles() {
+    if (d.getElementById('vc-widget-loader-styles')) return
+
     const style = d.createElement('style')
     style.innerHTML = `
       :root {
@@ -57,11 +59,22 @@
   }
 
   function showLoader() {
-    if (!loader) {
-      loader = d.createElement('div')
-      loader.className = 'vc-widget-loader-container'
-      loader.innerHTML = '<div class="vc-widget-loader"></div>'
+    if (loader) return
+
+    loader = d.createElement('div')
+    loader.className = 'vc-widget-loader-container'
+    loader.innerHTML = '<div class="vc-widget-loader"></div>'
+
+    if (d.body) {
       d.body.appendChild(loader)
+    } else {
+      d.addEventListener(
+        'DOMContentLoaded',
+        function () {
+          d.body.appendChild(loader)
+        },
+        { once: true }
+      )
     }
   }
 
@@ -69,61 +82,40 @@
     if (loader) loader.remove()
   }
 
-  const links = document.querySelectorAll('a[href^="#ePROBA"]')
-  links?.forEach(link =>
-    link.addEventListener('click', function (e) {
-      if (!isWidgetReady) {
-        showLoader()
-      }
-    })
+  d.addEventListener(
+    'click',
+    function (e) {
+      const target = e.target
+      const link = target && target.closest ? target.closest('a[href^="#ePROBA"]') : null
+      if (link && !isWidgetReady) showLoader()
+    },
+    true
   )
 
   addLoaderStyles()
 
   js = d.createElement(s)
   fjs = document.currentScript || d.getElementsByTagName(s)[0]
-  
+
   js.id = o
   js.src = f
-  js.async = 1
-  //js.defer = true
+  js.defer = true
 
   js.onload = function () {
     isWidgetReady = true
     hideLoader()
   }
 
-  fjs.parentNode.insertBefore(js, fjs)
-})(window, document, 'script', 'ePROBA', 'https://cabinet.vivacrm.ru/vc-widget-group-classes.js')
-
-// Конфигурация и инициализация СНАРУЖИ onload (через очередь команд)
-
-// Специальная логика для виджетов с переопределением staticWidgetMode
-;(function () {
-  // Читаем параметры из script тега (СНАРУЖИ onload - currentScript работает!)
-  const currentScript =
-    document.currentScript || document.querySelector('script[src*="3faa4c0c-036e-4e9f-b145-2f143356ff40.js"]')
-  let overrideStaticMode = undefined
-
-  if (currentScript) {
-    // Проверяем атрибут staticwidgetmode
-    const staticModeAttr = currentScript.getAttribute('staticwidgetmode')
-    if (staticModeAttr !== null) {
-      overrideStaticMode = staticModeAttr === 'true'
-    }
-
-    // Проверяем URL параметры
-    const scriptSrc = currentScript.src
-    if (scriptSrc) {
-      const url = new URL(scriptSrc)
-      const staticModeParam = url.searchParams.get('staticwidgetmode')
-      if (staticModeParam !== null) {
-        overrideStaticMode = staticModeParam === 'true'
-      }
-    }
+  js.onerror = function () {
+    hideLoader()
   }
 
-  const originalConfig = {
+  fjs.parentNode.insertBefore(js, fjs)
+})(window, document, 'script', 'ePROBA', './vc-widget-group-classes.js')
+
+// Конфигурация и инициализация СНАРУЖИ onload (через очередь команд)
+;(function () {
+  const config = {
     year: 2025,
     month: 1,
     theme: 'light',
@@ -176,7 +168,7 @@
     roomNamesHidden: false,
     //availableStudios: ['069594fe-3c07-4858-ba17-b93389792f6f'],
     roomPrefixHidden: false,
-    staticWidgetMode: true,
+    staticWidgetMode: false,
     timeBeforeBooking: [
       {
         id: '1',
@@ -198,12 +190,6 @@
     showExerciseDirections: true,
     personalDataProcessingPolicyLink: 'https://smstretching.ru/sm-pages/private-policy',
   }
-  const finalConfig = { ...originalConfig }
-
-  // Применяем переопределение staticWidgetMode если есть
-  if (overrideStaticMode !== undefined) {
-    finalConfig.staticWidgetMode = overrideStaticMode
-  }
 
   // Вызываем init через очередь команд - widget.js обработает её после загрузки
   function onDomReady(cb) {
@@ -215,47 +201,6 @@
   }
 
   onDomReady(function () {
-    window['ePROBA']('init', finalConfig)
+    window['ePROBA']('init', config)
   })
-})()
-
-// Добавляем popup-collection поддержку для всех основных виджетов в попап режиме
-
-// Универсальная логика для работы с popup-collection (всегда активна)
-;(function () {
-  console.log('🔧 Enabling popup-collection support for:', 'ePROBA')
-
-  // Добавляем обработчик hashchange для активации виджета
-  const hashChangeHandler = function () {
-    if (window.location.hash === '#ePROBA') {
-      console.log('🚀 Hash changed to #ePROBA, attempting to show widget')
-
-      if (window['ePROBA'] && typeof window['ePROBA'] === 'function') {
-        console.log('🚀 Popup-collection: Activating widget via hashchange:', 'ePROBA')
-        try {
-          window['ePROBA']('show')
-          console.log('✅ Widget show() called successfully')
-        } catch (e) {
-          console.error('❌ Error calling widget show():', e)
-        }
-      } else {
-        console.error('❌ Widget function not found:', 'ePROBA')
-      }
-    }
-  }
-
-  // Добавляем обработчик
-  window.addEventListener('hashchange', hashChangeHandler)
-
-  // Проверяем текущий hash при загрузке
-  if (window.location.hash === '#ePROBA') {
-    setTimeout(() => {
-      if (window['ePROBA'] && typeof window['ePROBA'] === 'function') {
-        console.log('🚀 Popup-collection: Activating widget on load:', 'ePROBA')
-        window['ePROBA']('show')
-      }
-    }, 100)
-  }
-
-  console.log('✅ Popup-collection support enabled for:', 'ePROBA')
 })()
