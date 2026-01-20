@@ -82,17 +82,6 @@
 
   js = d.createElement(s)
   fjs = document.currentScript || d.getElementsByTagName(s)[0]
-
-  var WRAP_ID = o + '-wrapping-element'
-  var wrap = d.getElementById(WRAP_ID)
-
-  if (!wrap) {
-    wrap = d.createElement('div')
-    wrap.id = WRAP_ID
-
-    // вставить ДО install-скрипта (можно afterend, см. ниже)
-    fjs.parentNode.insertBefore(wrap, fjs)
-  }
   
   js.id = o
   js.src = f
