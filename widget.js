@@ -111,7 +111,7 @@
   }
 
   fjs.parentNode.insertBefore(js, fjs)
-})(window, document, 'script', 'ePROBA', './vc-widget-group-classes.js')
+})(window, document, 'script', 'ePROBA', 'https://cabinet.vivacrm.ru/vc-widget-group-classes.js')
 
 // Конфигурация и инициализация СНАРУЖИ onload (через очередь команд)
 ;(function () {
