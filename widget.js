@@ -84,7 +84,7 @@
   fjs = document.currentScript || d.getElementsByTagName(s)[0]
   js.id = o
   js.src = f
-  js.async = 1
+  js.defer = true
 
   js.onload = function () {
     isWidgetReady = true
