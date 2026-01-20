@@ -168,7 +168,7 @@
     roomNamesHidden: false,
     //availableStudios: ['069594fe-3c07-4858-ba17-b93389792f6f'],
     roomPrefixHidden: false,
-    staticWidgetMode: false,
+    staticWidgetMode: true,
     timeBeforeBooking: [
       {
         id: '1',
