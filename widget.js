@@ -85,7 +85,7 @@
   
   js.id = o
   js.src = f
-  js.defer = true
+  js.defer = 1
 
   js.onload = function () {
     isWidgetReady = true
